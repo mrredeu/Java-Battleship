@@ -1,4 +1,5 @@
 import java.util.*;
+
 public class battleship {
    public static final String ANSI_RESET = "\u001B[0m";
    public static final String ANSI_RED = "\u001B[31m";
@@ -157,7 +158,6 @@ public class battleship {
 		String inputted = inputCoordinates.nextLine();
 	
 		try {
-			
 			int[] fired = convertShotToGrid(inputted);
 			
 			if (gridGuess[fired[0]][fired[1]] == water) {
@@ -198,16 +198,18 @@ public class battleship {
 		try {
 			int[] fired = convertShotToGrid(fullPosition);
 			
-			if(gridUser[fired[0]][fired[1]] == ship) {
+			if(gridUser[fired[0]][fired[1]] == ship){
 				gridUser[fired[0]][fired[1]] = hit;
 				if (checkAlive(gridUser) == true) {
 					computerShot();
 				}
-			}else {
+			}else if(gridUser[fired[0]][fired[1]] != hit || gridUser[fired[0]][fired[1]] == miss){
 				gridUser[fired[0]][fired[1]] = miss;
 				System.out.println("Your Ship Grid: ");
 				showGrid(gridUser);
-			}
+			}else{
+                computerShot();
+            }
 		} catch (Exception e) {
 			computerShot();
 		}
@@ -226,5 +228,3 @@ public class battleship {
        return alive;
 	}
 }
-
-
