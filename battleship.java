@@ -56,7 +56,7 @@ public class battleship {
        for (int i = 1; i <= grid.length; i++) {
            System.out.print(" " + i);
        }
-       System.out.println();
+       System.out.println(" ");
        for (int i = 0; i < grid.length; i++) {
            System.out.print((char) ('A' + i) + " ");
            for (int j = 0; j < grid[i].length; j++) {
@@ -148,14 +148,11 @@ public class battleship {
 		char hit = 'X';
 		char miss = '0';
 		char water = '~';
-        Scanner inputCoordinates = new Scanner(System.in);
-
-        System.out.println(" ");
-        System.out.println("Your Guess Grid: ");
-	    showGrid(gridGuess);
+		Scanner inputCoordinates = new Scanner(System.in);
 		
-		System.out.println("Type in Coordinate to fire: ");
+		System.out.print("Type in Coordinate to fire: ");
 		String inputted = inputCoordinates.nextLine();
+		System.out.println(" ");
 	
 		try {
 			int[] fired = convertShotToGrid(inputted);
@@ -203,13 +200,11 @@ public class battleship {
 				if (checkAlive(gridUser) == true) {
 					computerShot();
 				}
-			}else if(gridUser[fired[0]][fired[1]] != hit || gridUser[fired[0]][fired[1]] == miss){
+			}else {
 				gridUser[fired[0]][fired[1]] = miss;
 				System.out.println("Your Ship Grid: ");
 				showGrid(gridUser);
-			}else{
-                computerShot();
-            }
+			}
 		} catch (Exception e) {
 			computerShot();
 		}
