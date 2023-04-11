@@ -438,7 +438,6 @@ public class battleship {
 		}
 	}
 	
-
 	public static int computerRandFire(){
 		Random rand = new Random();
 		int getNumXPos = ((char)('a') + rand.nextInt(9));
