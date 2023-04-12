@@ -3,7 +3,9 @@ import java.util.*;
 public class battleship {
     public static int [] computerFirstHit;
     public static int [] computerHits;
-	static char[] boatIDs = {'C', 'B', 'R', 'S', 'D'};
+	public static boolean clearedSide1 = false;
+	public static boolean clearedSide2 = false;
+	public static boolean skipComputer = false;
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -43,8 +45,7 @@ public class battleship {
         while (true) {
             // User
             playerShot();
-            boolean computerLife = checkAlive(gridComputer);
-            if (computerLife == false) {
+            if (!checkAlive(gridComputer)) {
                 System.out.println("You win!");
                 break;
             }
@@ -60,8 +61,7 @@ public class battleship {
                 computerShotGOD();
             }
 
-            boolean userLife = checkAlive(gridUser);
-            if (userLife == false) {
+            if (!checkAlive(gridUser)) {
                 System.out.println("You lose!");
                 break;
             }
@@ -211,13 +211,22 @@ public class battleship {
     }  
    
     public static void computerShotHard() {
+		if (clearedSide1 == true && clearedSide2 == true){
+			computerFirstHit = null;
+			computerHits = null;
+			clearedSide1 = false; 
+			clearedSide2 = false;
+			computerShotHard();
+		}
+		
+		String fullPosition = null;
         if(computerFirstHit == null){
-            if (computerRandFire() == 2){
+			int computerFired = computerRandFire();
+            if (computerFired == 2 || computerFired == 3){
                 computerShotHard();
             }
         }else{
-            if (checkAlive(gridUser) == true) {
-                String fullPosition = null;
+            if (checkAlive(gridUser)) {
                 if (computerHits == null){
                     int X = computerFirstHit[0];
                     int Y = computerFirstHit[1]+1;
@@ -233,19 +242,15 @@ public class battleship {
 						fullPosition = generateFullPosition(X, Y+1);
 					}
 
-					if (fullPosition != null ){
-						if (isValidPosition(fullPosition) && !isAlreadyFired(fullPosition)){
+					if (fullPosition != null){
+						if (isValidPosition(fullPosition)){
 							int computerFired = computerFire(fullPosition);
 							if (computerFired == 0){
 								computerHits = new int[2];
 								computerHits[0] = convertShotToGrid(fullPosition)[0];
                             	computerHits[1] = convertShotToGrid(fullPosition)[1];
-							}else if (computerFired == 2){
-								if (computerHits != null){
-									computerShotHard();
-								}else{
-									computerFirstHit = null;
-								}
+							}else if (computerFired == 2 || computerFired == 3 || computerFired == 4){
+								computerShotHard();
 							}
 						}else{
 							computerShotHard();
@@ -254,49 +259,62 @@ public class battleship {
 						computerShotHard();
 					}
                 }else{
-					showGrid(gridUser);
 					int x_diff = computerHits[0] - computerFirstHit[0];
 					int y_diff = computerHits[1] - (computerFirstHit[1]);
 				
-					if (x_diff != 0) {
-						if (x_diff > 0) {
-							fullPosition = generateFullPosition(computerHits[0] + 1, computerHits[1] + 1);
-						} else if (x_diff < 0) {
-							fullPosition = generateFullPosition(computerHits[0] - 1, computerHits[1] + 1);
+					if (fullPosition == null && skipComputer == false){
+						if (x_diff != 0) {
+							if (x_diff > 0) {
+								fullPosition = generateFullPosition(computerHits[0] + 1, computerHits[1] + 1);
+							} else if (x_diff < 0) {
+								fullPosition = generateFullPosition(computerHits[0] - 1, computerHits[1] + 1);
+							}
+						} else if (y_diff != 0) {
+							if (y_diff > 0) {
+								fullPosition = generateFullPosition(computerHits[0], (computerHits[1] + 1) + 1);
+							} else if (y_diff < 0) {
+								fullPosition = generateFullPosition(computerHits[0], (computerHits[1] + 1) - 1);
+							}
 						}
-					} else if (y_diff != 0) {
-						if (y_diff > 0) {
-							fullPosition = generateFullPosition(computerHits[0], (computerHits[1] + 1) + 1);
-						} else if (y_diff < 0) {
-							fullPosition = generateFullPosition(computerHits[0], (computerHits[1] + 1) - 1);
-						}
+					}else{
+						fullPosition = generateFullPosition(computerHits[0], computerHits[1]);
+						skipComputer = false;
 					}
 				
 					if (fullPosition != null) {
-						if (isValidPosition(fullPosition) && !isAlreadyFired(fullPosition)) {
+						if (isValidPosition(fullPosition)) {
 							int computerFired = computerFire(fullPosition);
 							if (computerFired == 0) {
-								computerHits[0] = convertShotToGrid(fullPosition)[0];
-								computerHits[1] = convertShotToGrid(fullPosition)[1];
-							} else if (computerFired == 2) {
-								if (x_diff != 0) {
-									if (x_diff > 0) {
-										fullPosition = generateFullPosition(computerFirstHit[0] + 1, computerFirstHit[1]);
-									} else {
-										fullPosition = generateFullPosition(computerFirstHit[0] - 1, computerFirstHit[1]);
-									}
-								} else if (y_diff != 0) {
-									if (y_diff > 0) {
-										fullPosition = generateFullPosition(computerFirstHit[0], computerFirstHit[1] + 1);
-									} else {
-										fullPosition = generateFullPosition(computerFirstHit[0], computerFirstHit[1] - 1);
-									}
+								computerHits = convertShotToGrid(fullPosition);
+							} else if (computerFired == 3 || computerFired == 4) {
+								if (clearedSide1 == false){
+									clearedSide1 = true;
+									skipComputer = true;
+									computerHits = reverseLocation(x_diff, y_diff);
+								}else{
+									clearedSide2 = true;
+
 								}
-							}else{
-								computerHits = null;
+								computerShotHard();
+							}else if (computerFired == 1){
+								if (clearedSide1 == false){
+									clearedSide1 = true;
+									skipComputer = true;
+									computerHits = reverseLocation(x_diff, y_diff);
+								}else{
+									clearedSide2 = true;
+								}
+							}else if (computerFired == 2){
+								computerShotHard();
 							}
 						}else{
-							computerHits = null;
+							if (clearedSide1 == false){
+								clearedSide1 = true;
+								skipComputer = true;
+								computerHits = reverseLocation(x_diff, y_diff);
+							}else{
+								clearedSide2 = true;
+							}
 							computerShotHard();
 						}
 					}
@@ -304,6 +322,23 @@ public class battleship {
             }
         }
     }     
+
+	public static int[] reverseLocation(int x_diff, int y_diff){
+		if (x_diff != 0) {
+			if (x_diff > 0) {
+				return new int[] {(computerFirstHit[0] - 1), (computerFirstHit[1]+1)};
+			} else if (x_diff < 0) {
+				return new int[] {(computerFirstHit[0] + 1), (computerFirstHit[1]+1)};
+			}
+		} else if (y_diff != 0) {
+			if (y_diff > 0) {
+				return new int[] {(computerFirstHit[0]), (computerFirstHit[1] + 1) - 1};
+			} else if (y_diff < 0) {
+				return new int[] {(computerFirstHit[0]), (computerFirstHit[1]+1) + 1};
+			}
+		}
+		return null;
+	}
 
     public static void computerShotGOD(){
         Random rand = new Random();
@@ -340,28 +375,19 @@ public class battleship {
     }
 
     public static boolean isValidPosition(String position) {
-        if (position.length() != 2) {
+
+		if (position.length() != 2) {
             return false;
         }
         char xPos = position.charAt(0);
         int yPos = Character.getNumericValue(position.charAt(1));
-        if (xPos < 'a' || xPos > 'a' + gridUser.length - 1) {
+        if (xPos < 'a' || xPos > 'a' + gridUser.length-1) {
             return false;
         }
         if (yPos < 1 || yPos > gridUser.length) {
             return false;
         }
         return true;
-    }
-
-    public static boolean isAlreadyFired(String position) {
-        int row = position.charAt(1) - '1';
-        int col = position.charAt(0) - 'A';
-        if (row >= 0 && row < gridComputer.length && col >= 0 && col < gridComputer[0].length) {
-            return gridComputer[row][col] == 'X' || gridComputer[row][col] == '0';
-        } else {
-            return false;
-        }
     }
    
     public static int computerRandFire(){
@@ -389,16 +415,18 @@ public class battleship {
                 System.out.println("Your Ship Grid: ");
                 showGrid(gridUser);
                 return 0;
-            }else if (gridUser[fired[0]][fired[1]] == hit || gridUser[fired[0]][fired[1]] == miss){
+            }else if (gridUser[fired[0]][fired[1]] == hit){
                 return 2;
-            }else{
+			}else if (gridUser[fired[0]][fired[1]] == miss){
+				return 3;
+			}else{
                 gridUser[fired[0]][fired[1]] = miss;
                 System.out.println("Your Ship Grid: ");
                 showGrid(gridUser);
                 return 1;
             }
         } catch (Exception e) {
-            return 2;
+            return 4;
         }
     }
    
