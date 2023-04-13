@@ -6,6 +6,7 @@ public class battleship {
 	public static boolean clearedSide1 = false;
 	public static boolean clearedSide2 = false;
 	public static boolean skipComputer = false;
+	public static String[] attemptLocations = new String[0];
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -204,7 +205,8 @@ public class battleship {
    
     public static void computerShotEasy() {
         while (true) {
-            if (computerRandFire() != 2){
+			int computerFired = computerRandFire();
+            if (computerFired != 2 || computerFired != 3 || computerFired != 4){
                 break;
             }
         }
@@ -222,7 +224,7 @@ public class battleship {
 		String fullPosition = null;
         if(computerFirstHit == null){
 			int computerFired = computerRandFire();
-            if (computerFired == 2 || computerFired == 3){
+            if (computerFired == 2 || computerFired == 3 || computerFired == 4){
                 computerShotHard();
             }
         }else{
@@ -234,12 +236,26 @@ public class battleship {
 
 					if (num == 0){
 						fullPosition = generateFullPosition(X - 1, Y);
+						int i = attemptLocations.length;
+						attemptLocations = new String[i+1];
+						attemptLocations[i] = fullPosition;
 					}else if (num == 1){
 						fullPosition = generateFullPosition(X + 1, Y);
+						int i = attemptLocations.length;
+						attemptLocations = new String[i+1];
+						attemptLocations[i] = fullPosition;
 					}else if (num == 2){
 						fullPosition = generateFullPosition(X, Y-1);
+						int i = attemptLocations.length;
+						attemptLocations = new String[i+1];
+						attemptLocations[i] = fullPosition;
 					}else if (num == 3){
 						fullPosition = generateFullPosition(X, Y+1);
+						int i = attemptLocations.length;
+						attemptLocations = new String[i+1];
+						attemptLocations[i] = fullPosition;
+					}else if (attemptLocations.length == 4){
+						System.out.println("crazy shit goin on!!!!");
 					}
 
 					if (fullPosition != null){
@@ -249,6 +265,7 @@ public class battleship {
 								computerHits = new int[2];
 								computerHits[0] = convertShotToGrid(fullPosition)[0];
                             	computerHits[1] = convertShotToGrid(fullPosition)[1];
+								attemptLocations = new String[0];
 							}else if (computerFired == 2 || computerFired == 3 || computerFired == 4){
 								computerShotHard();
 							}
@@ -375,7 +392,7 @@ public class battleship {
     }
 
     public static boolean isValidPosition(String position) {
-
+ 
 		if (position.length() != 2) {
             return false;
         }
