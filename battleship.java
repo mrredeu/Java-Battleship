@@ -49,6 +49,7 @@ public class battleship {
             playerShot();
             if (!checkAlive(gridComputer)) {
                 System.out.println("You win!");
+                scanner.close();
                 break;
             }
 
@@ -65,6 +66,7 @@ public class battleship {
 
             if (!checkAlive(gridUser)) {
                 System.out.println("You lose!");
+                scanner.close();
                 break;
             }
         }
